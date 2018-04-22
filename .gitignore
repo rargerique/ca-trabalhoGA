@@ -33,3 +33,10 @@
 
 *.db
 *.opendb
+*.suo
+*.ilk
+*.pdb
+*.log
+*.tlog
+*.idb
+*.pdb
