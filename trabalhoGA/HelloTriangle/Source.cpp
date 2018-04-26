@@ -32,12 +32,22 @@ bool loadOBJ(const char * path, std::vector<glm::vec3>& out_vertices, std::vecto
 const GLuint WIDTH = 800, HEIGHT = 600;
 
 //Camera variables
-glm::vec3 cameraPos = glm::vec3(0.0f, 0.0f, 5.0f);
+glm::vec3 cameraPos = glm::vec3(0.0f, 3.0f, 10.0f);
 glm::vec3 cameraFront = glm::vec3(0.0f, 0.0f, -1.0f);
 glm::vec3 cameraUp = glm::vec3(0.0f, 1.0f, 0.0f);
 
+GLfloat objectY = 0.0f;
+GLfloat objectX = 0.0f;
+GLfloat objectZ = 0.0f;
+
+GLfloat rotateX = 0.0f;
+GLfloat rotateY = 0.0f;
+GLfloat rotateZ = 0.0f;
+
+GLfloat escaleObject = 1.0f;
+
 // Light attributes
-glm::vec3 lightPos(1.2f, 1.0f, 5.0f);
+glm::vec3 lightPos(-1.2f, 2.0f, 5.0f);
 
 //Mouse
 bool firstMouse = true;
@@ -102,14 +112,14 @@ int main()
 	// Normals attribute
 	glBindBuffer(GL_ARRAY_BUFFER, VBOs[2]);
 	glBufferData(GL_ARRAY_BUFFER, normals.size() * sizeof(glm::vec3), &normals[0], GL_STATIC_DRAW);
-	glVertexAttribPointer(2, 3, GL_FLOAT, GL_FALSE, 0, (GLvoid*)0);
-	glEnableVertexAttribArray(2);
-
-	// Texture attribute
-	glBindBuffer(GL_ARRAY_BUFFER, VBOs[1]);
-	glBufferData(GL_ARRAY_BUFFER, uvs.size() * sizeof(glm::vec3), &uvs[0], GL_STATIC_DRAW);
 	glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 0, (GLvoid*)0);
 	glEnableVertexAttribArray(1);
+
+	// Texture attribute - THIS IS NOT WORKING YET
+	glBindBuffer(GL_ARRAY_BUFFER, VBOs[1]);
+	glBufferData(GL_ARRAY_BUFFER, uvs.size() * sizeof(glm::vec3), &uvs[0], GL_STATIC_DRAW);
+	glVertexAttribPointer(2, 3, GL_FLOAT, GL_FALSE, 0, (GLvoid*)0);
+	glEnableVertexAttribArray(2);
 
 	// Then, we set the light's VAO (VBO stays the same. After all, the vertices are the same for the light object (also a 3D cube))
 	GLuint lightVAO;
@@ -154,7 +164,7 @@ int main()
 
 		// Create camera transformations
 		glm::mat4 view;
-		view = glm::lookAt(cameraPos, cameraPos + cameraFront, cameraUp);
+		view = glm::lookAt(cameraPos, cameraPos + cameraFront, cameraUp);		
 		glm::mat4 projection = glm::perspective(45.0f, (GLfloat)WIDTH / (GLfloat)HEIGHT, 0.1f, 100.0f);
 		// Get the uniform locations
 		GLint modelLoc = glGetUniformLocation(lightingShader.Program, "model");
@@ -167,8 +177,14 @@ int main()
 		// Draw container
 		glBindVertexArray(VAO);
 		glm::mat4 model;
+		model = glm::translate(model, glm::vec3(objectX, objectY, objectZ));
+		model = glm::rotate(model, glm::radians(rotateX), glm::vec3(1.0f, 0.0f, 0.0f));
+		model = glm::rotate(model, glm::radians(rotateY), glm::vec3(0.0f, 1.0f, 0.0f));
+		model = glm::rotate(model, glm::radians(rotateZ), glm::vec3(0.0f, 0.0f, 1.0f));
+		model = glm::scale(model, glm::vec3(escaleObject));
 		glUniformMatrix4fv(modelLoc, 1, GL_FALSE, glm::value_ptr(model));
-		glDrawArrays(GL_TRIANGLES, 0, vertices.size() + normals.size() + uvs.size());
+		// glDrawArrays(GL_TRIANGLES, 0, vertices.size() + normals.size() + uvs.size());
+		glDrawElements(GL_TRIANGLES, vertices.size() + normals.size() + uvs.size(), GL_UNSIGNED_INT, 0);
 		glBindVertexArray(0);
 
 		// Also draw the lamp object, again binding the appropriate shader
@@ -214,6 +230,32 @@ void key_callback(GLFWwindow* window, int key, int scancode, int action, int mod
 		cameraPos -= glm::normalize(glm::cross(cameraFront, cameraUp)) * cameraSpeed;
 	if (glfwGetKey(window, GLFW_KEY_D) == GLFW_PRESS)
 		cameraPos += glm::normalize(glm::cross(cameraFront, cameraUp)) * cameraSpeed;
+
+	if (glfwGetKey(window, GLFW_KEY_J) == GLFW_PRESS)
+		objectX -= 0.1f;
+	if (glfwGetKey(window, GLFW_KEY_L) == GLFW_PRESS)
+		objectX += 0.1f;
+	if (glfwGetKey(window, GLFW_KEY_I) == GLFW_PRESS)
+		objectY += 0.1f;
+	if (glfwGetKey(window, GLFW_KEY_K) == GLFW_PRESS)
+		objectY -= 0.1f;
+	if (glfwGetKey(window, GLFW_KEY_O) == GLFW_PRESS)
+		objectZ -= 0.1f;
+	if (glfwGetKey(window, GLFW_KEY_P) == GLFW_PRESS)
+		objectZ += 0.1f;
+
+	if (glfwGetKey(window, GLFW_KEY_Y) == GLFW_PRESS)
+		 rotateX += 1.0f;
+	if (glfwGetKey(window, GLFW_KEY_U) == GLFW_PRESS)
+		 rotateY += 1.0f;
+	if (glfwGetKey(window, GLFW_KEY_T) == GLFW_PRESS)
+		rotateZ += 1.0f;
+
+	if (glfwGetKey(window, GLFW_KEY_N) == GLFW_PRESS)
+		escaleObject += 0.1f;
+	if (glfwGetKey(window, GLFW_KEY_M) == GLFW_PRESS)
+		escaleObject -= 0.1f;
+
 }
 
 void mouse_callback(GLFWwindow* window, double xpos, double ypos)
