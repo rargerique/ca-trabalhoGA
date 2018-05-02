@@ -27,5 +27,7 @@
   <ItemGroup>
     <None Include="..\shaders\lighting.frag" />
     <None Include="..\shaders\lighting.vs" />
+    <None Include="..\shaders\lamp.vs" />
+    <None Include="..\shaders\lamp.frag" />
   </ItemGroup>
 </Project>

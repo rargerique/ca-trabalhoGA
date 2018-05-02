@@ -158,7 +158,7 @@ int main()
 		GLint lightPosLoc = glGetUniformLocation(lightingShader.Program, "lightPos");
 		GLint viewPosLoc = glGetUniformLocation(lightingShader.Program, "viewPos");
 		glUniform3f(objectColorLoc, 1.0f, 0.5f, 0.31f);
-		glUniform3f(lightColorLoc, 1.0f, 1.0f, 1.0f);
+		glUniform3f(lightColorLoc, 5.0f, 1.0f, 1.0f);
 		glUniform3f(lightPosLoc, lightPos.x, lightPos.y, lightPos.z);
 		glUniform3f(viewPosLoc, cameraPos[0], cameraPos[1], cameraPos[2]);
 
@@ -183,8 +183,7 @@ int main()
 		model = glm::rotate(model, glm::radians(rotateZ), glm::vec3(0.0f, 0.0f, 1.0f));
 		model = glm::scale(model, glm::vec3(escaleObject));
 		glUniformMatrix4fv(modelLoc, 1, GL_FALSE, glm::value_ptr(model));
-		// glDrawArrays(GL_TRIANGLES, 0, vertices.size() + normals.size() + uvs.size());
-		glDrawElements(GL_TRIANGLES, vertices.size() + normals.size() + uvs.size(), GL_UNSIGNED_INT, 0);
+		glDrawArrays(GL_TRIANGLES, 0, vertices.size());
 		glBindVertexArray(0);
 
 		// Also draw the lamp object, again binding the appropriate shader
@@ -202,7 +201,7 @@ int main()
 		glUniformMatrix4fv(modelLoc, 1, GL_FALSE, glm::value_ptr(model));
 		// Draw the light object (using light's vertex attributes)
 		glBindVertexArray(lightVAO);
-		glDrawArrays(GL_TRIANGLES, 0, vertices.size() + normals.size() + uvs.size());
+		glDrawArrays(GL_TRIANGLES, 0, vertices.size());
 		glBindVertexArray(0);
 
 		// Swap the screen buffers
